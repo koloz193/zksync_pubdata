@@ -1,0 +1,3 @@
+[submodule "zkevm_circuits"]
+	path = zkevm_circuits
+	url = git@github.com:koloz193/era-zkevm_circuits.git

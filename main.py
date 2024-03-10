@@ -11,6 +11,7 @@ args = parser.parse_args()
 l1_url = args.l1rpc
 l2_url = args.l2rpc
 batch_number = args.batch
+network = args.network
 
 l2_batch_resp = get_batch_details(l2_url, batch_number)
 
@@ -27,4 +28,4 @@ try:
 except Exception as e:
     pexit(f"An error occurred: {e}")
 
-parse_commitcall_calldata(commit_txn['input'], batch_number)
+parse_commitcall_calldata(network, commit_txn['input'], batch_number)

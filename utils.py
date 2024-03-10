@@ -7,6 +7,7 @@ from pubdata import parse_pubdata_calldata
 import requests
 import json
 import sys
+from zkevm_circuits import ethereum_4844_data_into_zksync_pubdata
 
 ParsedSystemLog = namedtuple("ParsedSystemLog", ['sender', 'key', 'value'])
 
@@ -28,7 +29,7 @@ def parse_system_logs(system_logs) -> List[ParsedSystemLog]:
 
     return parsed_logs
 
-def parse_commitcall_calldata(calldata, batch_to_find):
+def parse_commitcall_calldata(network, calldata, batch_to_find):
     selector = calldata[0:4]
 
     if selector.hex() != COMMIT_BATCHES_SELECTOR:
@@ -69,10 +70,31 @@ def parse_commitcall_calldata(calldata, batch_to_find):
         pubdata_info = parse_pubdata_calldata(pubdata)
         print(pubdata_info)
     elif pubdata_source == PubdataSource.BLOBS:
-        print("BLOBS")
+        blobs = ""
+        for i in range(0, len(pubdata), 144):
+            pubdata_commitment = pubdata[i:i+144]
+            kzg_commitment = pubdata_commitment[48:96]
+            blobs += get_blob(network, kzg_commitment.hex())[2:]
+        blob_bytes = bytes.fromhex(blobs)
+        decoded_blob = ethereum_4844_data_into_zksync_pubdata(blob_bytes)
+        hex_decoded = bytes(decoded_blob)
+        print(parse_pubdata_calldata(hex_decoded))
     else:
         pexit(f"Unsupported pubdata source byte: {pubdata_source}")
 
+def get_blob(network, kzg_commitment):
+    if network == 'mainnet':
+        base = 'https://api.blobscan.com/api/blobs/'
+    elif network == 'goerli':
+        base = 'https://api.goerli.blobscan.com/api/blobs/'
+    elif network == 'sepolia':
+        base = 'https://api.sepolia.blobscan.com/api/blobs/'
+    else:
+        pexit(f"Network not supported: {network}")
+
+    url = base + "0x" + kzg_commitment
+    resp = requests.get(url)
+    return resp.json()['data']
 
 def get_batch_details(url, batch_number):
     headers = {"Content-Type": "application/json"}
