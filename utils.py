@@ -77,7 +77,7 @@ def parse_commitcall_calldata(network, calldata, batch_to_find):
             blobs += get_blob(network, kzg_commitment.hex())[2:]
         blob_bytes = bytes.fromhex(blobs)
         decoded_blob = ethereum_4844_data_into_zksync_pubdata(blob_bytes)
-        del_for(decoded_blob)
+        del_trailing_zeroes(decoded_blob)
         hex_decoded = bytes(decoded_blob)
         print(parse_pubdata_calldata(hex_decoded))
     else:
@@ -107,7 +107,7 @@ def pexit(msg: str):
     print(msg)
     sys.exit(1)
 
-def del_for(mylist):
+def del_trailing_zeroes(mylist):
     for i in reversed(mylist):
         if not i:
             del mylist[-1]
