@@ -84,7 +84,7 @@ def parse_state_diff(state_diff, debug=False):
     
 
 
-def parse_pubdata(pubdata, debug=False):
+def parse_pubdata_calldata(pubdata, debug=False):
     if debug:
         print(len(pubdata))
     # pubdata starts with number of l1 - l2 transactions.

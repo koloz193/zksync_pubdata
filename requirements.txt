@@ -1,1 +1,4 @@
 eth_abi
+argparse
+requests
+web3
