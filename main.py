@@ -12,7 +12,6 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 @app.route('/batch/<int:batch_number>')
 @cache.memoize(60)
 def batch(batch_number):
-    print(app.config)
     l1_url = app.config['l1_url']
     l2_url = app.config['l2_url']
     network = app.config['network']
