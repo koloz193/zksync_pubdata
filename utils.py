@@ -71,16 +71,16 @@ def parse_commitcall_calldata(network, calldata, batch_to_find):
         pubdata_info = parse_pubdata_calldata(pubdata)
         total_pubdata = pubdata
     elif pubdata_source == PubdataSource.BLOBS:
-        blobs = ""
+        blobs = []
         for i in range(0, len(pubdata), 144):
             pubdata_commitment = pubdata[i:i+144]
             kzg_commitment = pubdata_commitment[48:96]
-            blobs += get_blob(network, kzg_commitment.hex())[2:]
+            blob = get_blob(network, kzg_commitment.hex())[2:]
             num_blobs += 1
-        blob_bytes = bytes.fromhex(blobs)
-        decoded_blob = ethereum_4844_data_into_zksync_pubdata(blob_bytes)
-        del_trailing_zeroes(decoded_blob)
-        hex_decoded = bytes(decoded_blob)
+            blob_bytes = bytes.fromhex(blob)
+            blobs += ethereum_4844_data_into_zksync_pubdata(blob_bytes)
+        del_trailing_zeroes(blobs)
+        hex_decoded = bytes(blobs)
         pubdata_info = parse_pubdata_calldata(hex_decoded)
         total_pubdata = hex_decoded
     else:
