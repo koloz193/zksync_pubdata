@@ -80,9 +80,9 @@ def parse_commitcall_calldata(network, calldata, batch_to_find):
             blob_bytes = bytes.fromhex(blob)
             blobs += ethereum_4844_data_into_zksync_pubdata(blob_bytes)
         del_trailing_zeroes(blobs)
-        hex_decoded = bytes(blobs)
-        pubdata_info = parse_pubdata_calldata(hex_decoded)
-        total_pubdata = hex_decoded
+        blob_bytes = bytes(blobs)
+        pubdata_info = parse_pubdata_calldata(blob_bytes)
+        total_pubdata = blob_bytes
     else:
         pexit(f"Unsupported pubdata source byte: {pubdata_source}")
     
