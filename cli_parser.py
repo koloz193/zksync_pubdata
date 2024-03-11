@@ -12,7 +12,6 @@ def init_argparse() -> argparse.ArgumentParser:
 
     parser.add_argument("--l1rpc", type=str, required=True)
     parser.add_argument("--l2rpc", type=str, required=True)
-    parser.add_argument("-b", "--batch", type=int, required=True)
     parser.add_argument("-n", "--network", type=str, required=True)
 
     return parser

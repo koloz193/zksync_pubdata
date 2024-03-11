@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css' ) }}">
+    <title>Batch Status</title>
+</head>
+
+<body>
+
+
+    <div class="header">
+        <h1>Batch Status Dashboard</h1>
+    </div>
+
+
+    <div class="container">
+        <a href="batch/{{batch.id-1}}" style="font-size: x-large;">Prev</a>
+        <a href="batch/{{batch.id+1}}" style="font-size: x-large;">Next</a>
+
+        <h1>Batch info</h1>
+        <table class="table" style="width:60%">
+            <tr>
+                <td>Batch id</td>
+                <td>{{batch.id}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Pubdata Source</td>
+                {% block pubdata_source %}
+                    {% if batch.pubdata_source == 0 %}
+                        <td>CALLDATA</td>
+                    {% elif batch.pubdata_source == 1 %}
+                        <td>BLOBS</td>
+                    {% endif %}
+                {% endblock pubdata_source %}
+                <td>Num Blobs: {{batch.num_blobs}}</td>
+            </tr>
+            <tr>
+                <td>Commit Tx:</td>
+                <td></td>
+                {% block content %}
+                    {% if batch.network == 'mainnet' %}
+                        <td class="right-align-fixed-font"><a
+                            href="https://etherscan.io/tx/{{batch.commitTxHash}}">{{batch.commitTxHash}}</a></td>
+                    {% elif batch.network == 'sepolia' %}
+                        <td class="right-align-fixed-font"><a
+                            href="https://sepolia.etherscan.io/tx/{{batch.commitTxHash}}">{{batch.commitTxHash}}</a></td>
+                    {% elif batch.network == 'goerli' %}
+                        <td class="right-align-fixed-font"><a
+                            href="https://goerli.etherscan.io/tx/{{batch.commitTxHash}}">{{batch.commitTxHash}}</a></td>
+                    {% endif %}
+                {% endblock content %}
+            </tr>
+            <tr>
+                <td>State root</td>
+                <td></td>
+                <td class="right-align-fixed-font">0x{{batch.newStateRoot}}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: center; font-weight: bold;">System logs</td>
+            </tr>
+            {% for system_log in batch.parsed_system_logs %}
+            <tr>
+                <td>{{system_log.sender}}</td>
+                <td>{{system_log.key}}</td>
+                <td class=" right-align-fixed-font">0x{{system_log.value}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" style="text-align: center; font-weight: bold;">Pubdata</td>
+            </tr>
+            <tr>
+                <td rowspan="4">Length</td>
+                <td>Total</td>
+                <td>{{batch.pubdata_length}}</td>
+            </tr>
+            <tr>
+                <td>Messages</td>
+                <td>{{batch.pubdata_msg_length}}</td>
+            </tr>
+            <tr>
+                <td>Bytecode</td>
+                <td>{{batch.pubdata_bytecode_length}}</td>
+            </tr>
+            <tr>
+                <td>State diff</td>
+                <td>{{batch.pubdata_statediff_length}}</td>
+            </tr>
+            <tr>
+                <td rowspan="2">User messages</td>
+
+                <td>Total count</td>
+                <td>{{batch.l1_l2_msg_counter}}</td>
+            </tr>
+            <tr>
+                <td>Out of which - large</td>
+                <td>{{batch.large_msg_counter}}</td>
+            </tr>
+            <tr>
+                <td>Published bytecodes</td>
+                <td>{{batch.bytecodes}}</td>
+            </tr>
+
+            <tr>
+                <td rowspan="3">State diffs</td>
+                <td>Initial writes</td>
+                <td>{{batch.initial_writes_count}}</td>
+            </tr>
+
+            <tr>
+                <td>Repeated writes</td>
+                <td>{{batch.repeated_writes_count}}</td>
+            </tr>
+            <tr>
+                <td>Compression (lower is better) % </td>
+                <td>{{batch.statediff_compression_percent}}%</td>
+            </tr>
+        </table>
+
+        <h1>Initial writes: </h1>
+        <table class="table">
+            <tr>
+                <td>key</td>
+                <td>Compression</td>
+                <td>Value</td>
+            </tr>
+            {% for key, value in batch.initial_writes.items() %}
+            <tr>
+                <td class="right-align-fixed-font">0x{{key}}</td>
+                <td>{{value[0]}}</td>
+                <td class="right-align-fixed-font">0x{{value[1]}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+
+        <h1>Repeated writes:</h1>
+
+        <table class="table">
+            <tr>
+                <td>key</td>
+                <td>Compression</td>
+                <td>Value</td>
+            </tr>
+            {% for key, value in batch.repeated_writes.items() %}
+            <tr>
+                <td>0x{{key}}</td>
+                <td>{{value[0]}}</td>
+                <td class="right-align-fixed-font">0x{{value[1]}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+
+
+    </div>
+
+</body>
+
+</html>

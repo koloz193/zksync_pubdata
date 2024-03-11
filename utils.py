@@ -63,25 +63,30 @@ def parse_commitcall_calldata(network, calldata, batch_to_find):
     parsed_system_logs = parse_system_logs(system_logs)
 
     (pubdata_source, pubdata) = pubdata_commitments[0], pubdata_commitments[1:]
+    num_blobs = 0
 
     if pubdata_source == PubdataSource.CALLDATA:
         # Need to parse out the last 32 bytes as they contain the blob commitment
         pubdata = pubdata[:len(pubdata) - 32]
         pubdata_info = parse_pubdata_calldata(pubdata)
-        print(pubdata_info)
+        total_pubdata = pubdata
     elif pubdata_source == PubdataSource.BLOBS:
         blobs = ""
         for i in range(0, len(pubdata), 144):
             pubdata_commitment = pubdata[i:i+144]
             kzg_commitment = pubdata_commitment[48:96]
             blobs += get_blob(network, kzg_commitment.hex())[2:]
+            num_blobs += 1
         blob_bytes = bytes.fromhex(blobs)
         decoded_blob = ethereum_4844_data_into_zksync_pubdata(blob_bytes)
         del_trailing_zeroes(decoded_blob)
         hex_decoded = bytes(decoded_blob)
-        print(parse_pubdata_calldata(hex_decoded))
+        pubdata_info = parse_pubdata_calldata(hex_decoded)
+        total_pubdata = hex_decoded
     else:
         pexit(f"Unsupported pubdata source byte: {pubdata_source}")
+    
+    return (pubdata_source, num_blobs, new_state_root_, pubdata_info, parsed_system_logs, len(total_pubdata))
 
 def get_blob(network, kzg_commitment):
     if network == 'mainnet':
@@ -101,6 +106,7 @@ def get_batch_details(url, batch_number):
     headers = {"Content-Type": "application/json"}
     data = {"jsonrpc": "2.0", "id": 1, "method": "zks_getL1BatchDetails", "params": [batch_number]}
     response = requests.post(url, headers=headers, data=json.dumps(data))
+    print(response.json())
     return response.json()["result"]
 
 def pexit(msg: str):
