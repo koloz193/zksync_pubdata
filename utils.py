@@ -90,11 +90,11 @@ def parse_commitcall_calldata(network, calldata, batch_to_find):
 
 def get_blob(network, kzg_commitment):
     if network == 'mainnet':
-        base = 'https://api.blobscan.com/api/blobs/'
+        base = 'https://api.blobscan.com/blobs/'
     elif network == 'goerli':
-        base = 'https://api.goerli.blobscan.com/api/blobs/'
+        base = 'https://api.goerli.blobscan.com/blobs/'
     elif network == 'sepolia':
-        base = 'https://api.sepolia.blobscan.com/api/blobs/'
+        base = 'https://api.sepolia.blobscan.com/blobs/'
     else:
         pexit(f"Network not supported: {network}")
 
